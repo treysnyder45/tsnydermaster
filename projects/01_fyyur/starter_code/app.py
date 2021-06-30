@@ -692,7 +692,7 @@ def edit_venue_submission(venue_id):
 
 #  Create Artist
 #  ----------------------------------------------------------------
-
+print("hello")
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
   form = ArtistForm()
