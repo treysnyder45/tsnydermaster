@@ -413,23 +413,17 @@ def create_venue_submission():
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-  '''
-  app.logger.warning(venue_id)
-  session.query(Venue).filter_by(id = venue_id).delete()
-  session.commit()
-  '''
+  
   try:
-    Venue.query.filterby(id=venue_id).delete()
-    db.session.commit()
+    session.query(Venue).filter_by(id = venue_id).delete()
+    session.commit()
+    flash('Venue ' + str(venue_id) + ' was successfully deleted!')
   except:
-    db.session.rollback()
-  finally:
-    db.session.close
+    flash('Venue ' + str(venue_id) + ' was NOT deleted!')
+
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
   
-  flash('Venue ' + str(venue_id) + ' was successfully deleted!')
-
   return render_template('pages/home.html')
 
 #  Artists
@@ -800,7 +794,6 @@ def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   ## TODO: insert form data as a new Show record in the db, instead
  
-  
   newshow = Shows(
       artist_id=request.form['artist_id'],
       venue_id=request.form['venue_id'],
