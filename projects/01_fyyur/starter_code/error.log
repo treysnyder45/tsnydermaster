@@ -2447,3 +2447,50 @@ AttributeError: 'Request' object has no attribute 'getform'
 2021-06-29 17:42:11,630 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:782]
 2021-06-29 17:44:38,478 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:782]
 2021-06-29 17:46:26,559 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:782]
+2021-07-01 15:58:51,577 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:832]
+2021-07-01 16:12:59,876 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:829]
+2021-07-01 16:47:45,486 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:851]
+2021-07-01 16:50:12,842 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:851]
+2021-07-01 18:16:25,377 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:624]
+2021-07-01 18:16:39,124 ERROR: Exception on /artists/5 [GET] [in C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py:1454]
+Traceback (most recent call last):
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 2070, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1515, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1513, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1499, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py", line 365, in show_artist
+    for v, s in session.query(Venue, Shows, Artist).filter(Artist.id == Shows.artist_id).filter(Shows.venue_id == Venue.id).filter(Shows.start_time < datetime.datetime.now()).all():
+ValueError: too many values to unpack (expected 2)
+2021-07-01 18:29:06,215 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:625]
+2021-07-01 18:35:38,770 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:624]
+2021-07-01 18:36:35,980 ERROR: Exception on /artists/1 [GET] [in C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py:1454]
+Traceback (most recent call last):
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 2070, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1515, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1513, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1499, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py", line 380, in show_artist
+    tmp_dict['start_time'] = str(v.start_time)
+AttributeError: 'Venue' object has no attribute 'start_time'
+2021-07-01 18:36:54,240 ERROR: Exception on /artists/2 [GET] [in C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py:1454]
+Traceback (most recent call last):
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 2070, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1515, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1513, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\iclcks\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\local-packages\Python39\site-packages\flask\app.py", line 1499, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py", line 380, in show_artist
+    tmp_dict['start_time'] = str(v.start_time)
+AttributeError: 'Venue' object has no attribute 'start_time'
+2021-07-01 18:38:20,913 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:622]
