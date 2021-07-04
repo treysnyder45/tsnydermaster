@@ -13,7 +13,7 @@ from sqlalchemy import func
 import datetime
 from starter_code import app
 from starter_code.models import cur, session, Venue, Artist, Shows
-from starter_code.forms import VenueForm, ArtistForm
+from starter_code.forms import VenueForm, ArtistForm, ShowForm
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -400,7 +400,7 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   ## TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
-
+   
   seek_venue = False
   if request.form.get('seeking_venue') == 'y':
     seek_venue = True
@@ -429,7 +429,22 @@ def create_artist_submission():
   # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
   return render_template('pages/home.html')
 
+@app.route('/artists/<int:artist_id>/delete', methods=['GET'])
+def delete_artist(artist_id):
+  # TODO: Complete this endpoint for taking a artist_id, and using
+  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+  
+  try:
+    session.query(Artist).filter_by(id = artist_id).delete()
+    session.commit()
+    flash('Artist ' + str(artist_id) + ' was successfully deleted!')
+  except:
+    flash('Artist ' + str(artist_id) + ' was NOT deleted!')
 
+  # BONUS CHALLENGE: Implement a button to delete a Artist on a Artist Page, have it so that
+  # clicking that button delete it from the db then redirect the user to the homepage
+  
+  return render_template('pages/home.html')
 #  Shows
 #  ----------------------------------------------------------------
 @app.route('/shows')
@@ -451,6 +466,7 @@ def shows():
 def create_shows():
   # renders form. do not touch.
   form = ShowForm()
+  form.start_time.data = datetime.datetime.now()
   return render_template('forms/new_show.html', form=form)
 
 
@@ -470,6 +486,8 @@ def create_show_submission():
     session.commit()
     flash('Show was successfully listed!')
   except:
+    session.rollback()
+    session.flush()
     flash('An error occurred. Show could not be listed.')
 
   ## TODO: on unsuccessful db insert, flash an error instead.

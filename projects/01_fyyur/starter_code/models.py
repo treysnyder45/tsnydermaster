@@ -32,7 +32,7 @@ from sqlalchemy.inspection import inspect
 
 try:
     session.flush()
-except IntegrityError:
+except:
     print(str(sys.exc_info()[0]))
     session.rollback()
 
