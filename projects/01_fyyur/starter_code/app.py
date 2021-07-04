@@ -2,143 +2,18 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-import json
-from typing import Dict
+import logging
+from logging import Formatter, FileHandler, error
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, flash, redirect, url_for
-from flask_moment import Moment
-from flask_sqlalchemy import SQLAlchemy
-import logging
-from logging import Formatter, FileHandler
-from forms import *
-from flask_migrate import Migrate
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-import psycopg2
-import os
+from babel.dates import format_datetime
+import sys
+from flask import render_template, request, flash, redirect, url_for
+from sqlalchemy import func
 import datetime
-from sqlalchemy import select, func
-import config
-
-#----------------------------------------------------------------------------#
-# App Config.
-#----------------------------------------------------------------------------#
-
-app = Flask(__name__)
-moment = Moment(app)
-app.config['SECRET_KEY'] = os.urandom(32)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/fyyur'
-db = SQLAlchemy(app)
-
-engine = create_engine('postgresql://postgres:postgres@localhost:5432/fyyur')
-Session = sessionmaker(engine)
-session = Session()
-
-conn2 = psycopg2.connect("dbname=fyyur user=postgres password=postgres")
-cur = conn2.cursor()
-## TODO: connect to a local postgresql database
-
-migrate = Migrate(app, db)
-
-#----------------------------------------------------------------------------#
-# Models.
-#----------------------------------------------------------------------------#
-from sqlalchemy.inspection import inspect
-
-class ModelMixin:
-    """Provide dict-like interface to db.Model subclasses."""
-
-    def __getitem__(self, key):
-        """Expose object attributes like dict values."""
-        return getattr(self, key)
-
-    def keys(self):
-        """Identify what db columns we have."""
-        return inspect(self).attrs.keys()
-
-
-def to_json(inst, cls):
-    """
-    Jsonify the sql alchemy query result.
-    """
-    convert = dict()
-    # add your coversions for things like datetime's 
-    # and what-not that aren't serializable.
-    d = dict()
-    for c in cls.__table__.columns:
-        v = getattr(inst, c.name)
-        if c.type in convert.keys() and v is not None:
-            try:
-                d[c.name] = convert[c.type](v)
-            except:
-                d[c.name] = "Error:  Failed to covert using ", str(convert[c.type])
-        elif v is None:
-            d[c.name] = str()
-        else:
-            d[c.name] = v
-    return json.dumps(d)
-
-'''
-class MyJSONEncoder(JSONEncoder):
-    def default(self, obj):
-        # Optional: convert datetime objects to ISO format
-        with suppress(AttributeError):
-            return obj.isoformat()
-        return dict(obj)
-
-app.json_encoder = MyJSONEncoder
-'''
-
-class Venue(db.Model):
-    __tablename__ = 'venue'
-    # check for serial instead of integer
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    genres = db.Column(db.String(250))
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    address = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    website = db.Column(db.String(500), nullable=True)
-    seeking_talent = db.Column(db.Boolean(), nullable=True)
-    seeking_description = db.Column(db.String(500), nullable=True)
-    shows = db.relationship("Shows", cascade="all,delete", back_populates="venue")
-
-    ## TODO: implement any missing fields, as a database migration using Flask-Migrate
-
-class Artist(db.Model):
-    __tablename__ = 'artist'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    genres = db.Column(db.String(250))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    website = db.Column(db.String(500), nullable=True)
-    seeking_venue = db.Column(db.Boolean(), nullable=True)
-    seeking_description = db.Column(db.String(500), nullable=True)
-    shows = db.relationship("Shows", cascade="all,delete", back_populates="artist")
-
-    ## TODO: implement any missing fields, as a database migration using Flask-Migrate
-
-class Shows(db.Model):
-  __tablename__ = 'shows'
-
-  id = db.Column(db.Integer, primary_key=True)
-  start_time = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
-  venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), index=True)
-  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), index=True)
-  venue = db.relationship("Venue", cascade="all,delete", back_populates="shows")
-  artist = db.relationship("Artist", cascade="all,delete", back_populates="shows")
-
-db.create_all()
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+from starter_code import app
+from starter_code.models import cur, session, Venue, Artist, Shows
+from starter_code.forms import VenueForm, ArtistForm
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -286,7 +161,7 @@ def create_venue_submission():
     session.commit()
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
   except:
-    flash('Venue ' + request.form['name'] + ' FAILED to be listed.')
+    flash('Venue ' + request.form['name'] + ' FAILED to be listed.' + str(sys.exc_info()[0])) 
 
   ## TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
@@ -548,7 +423,7 @@ def create_artist_submission():
     session.commit()
     flash('Artist ' + request.form['name'] + ' was successfully listed!')
   except:
-    flash('Artist ' + request.form['name'] + ' FAILED to be listed!!!')
+    flash('Artist ' + request.form['name'] + ' FAILED to be listed!!!' + str(sys.exc_info()[0]))
 
   ## TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')

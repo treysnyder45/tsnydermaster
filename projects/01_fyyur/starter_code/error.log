@@ -2494,3 +2494,4 @@ Traceback (most recent call last):
     tmp_dict['start_time'] = str(v.start_time)
 AttributeError: 'Venue' object has no attribute 'start_time'
 2021-07-01 18:38:20,913 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:622]
+2021-07-03 13:55:56,866 INFO: errors [in C:\documents\udacity\fsnd\projects\01_fyyur\starter_code\app.py:633]
