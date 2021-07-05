@@ -8,7 +8,7 @@ import dateutil.parser
 import babel
 from babel.dates import format_datetime
 import sys
-from flask import render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for
 from sqlalchemy import func
 import datetime
 from starter_code import app
@@ -161,6 +161,8 @@ def create_venue_submission():
     session.commit()
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
   except:
+    session.rollback()
+    session.flush()
     flash('Venue ' + request.form['name'] + ' FAILED to be listed.' + str(sys.exc_info()[0])) 
 
   ## TODO: on unsuccessful db insert, flash an error instead.
@@ -179,6 +181,8 @@ def delete_venue(venue_id):
     session.commit()
     flash('Venue ' + str(venue_id) + ' was successfully deleted!')
   except:
+    session.rollback()
+    session.flush()
     flash('Venue ' + str(venue_id) + ' was NOT deleted!')
 
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
@@ -423,6 +427,8 @@ def create_artist_submission():
     session.commit()
     flash('Artist ' + request.form['name'] + ' was successfully listed!')
   except:
+    session.rollback()
+    session.flush()
     flash('Artist ' + request.form['name'] + ' FAILED to be listed!!!' + str(sys.exc_info()[0]))
 
   ## TODO: on unsuccessful db insert, flash an error instead.
@@ -439,6 +445,8 @@ def delete_artist(artist_id):
     session.commit()
     flash('Artist ' + str(artist_id) + ' was successfully deleted!')
   except:
+    session.rollback()
+    session.flush()
     flash('Artist ' + str(artist_id) + ' was NOT deleted!')
 
   # BONUS CHALLENGE: Implement a button to delete a Artist on a Artist Page, have it so that
