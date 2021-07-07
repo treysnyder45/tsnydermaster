@@ -45,14 +45,40 @@ def venues():
   ## TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
   
-  cur.execute("SELECT json_build_object('city', v2.city, 'state', v2.state, 'venues', json_agg(Vens)) FROM venue v2 LEFT JOIN (SELECT v.id id, v.name, coalesce(COUNT(s.id), 0) upcoming FROM venue v LEFT JOIN shows s ON v.id = s.venue_id GROUP by v.id, v.name) as Vens on v2.id = Vens.id GROUP BY v2.city, v2.state")
+  rv = Venue.query.order_by(Venue.city, Venue.state).all()
+  prev_city = ''
+  prev_state = ''
+  ven_list = []
+  json_dict = {}
+  ven_dict = {}
+  json_list=[]
 
-  rv = cur.fetchall()
-  json_data=[]
   for result in rv:
-    json_data.append(result[0])
-  
-  return render_template('pages/venues.html', areas=json_data);
+   
+    if prev_city != '':
+
+      if prev_city != result.city or prev_state != result.state:
+        json_dict['city'] = prev_city
+        json_dict['state'] = prev_state
+        json_dict['venues'] = ven_list
+        json_list.append(json_dict)
+        json_dict = {}
+        ven_list = []
+        
+    ven_dict = {}
+    ven_dict['id'] = result.id
+    ven_dict['name'] = result.name
+    ven_list.append(ven_dict)
+
+    prev_city = result.city
+    prev_state = result.state
+
+  json_dict['city'] = prev_city
+  json_dict['state'] = prev_state
+  json_dict['venues'] = ven_list
+  json_list.append(json_dict)
+
+  return render_template('pages/venues.html', areas=json_list)
   
 
 @app.route('/venues/search', methods=['POST'])
@@ -62,16 +88,13 @@ def search_venues():
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
   
   search_str = "%" + request.form['search_term'] +"%"
-  sql_stmt = "SELECT json_build_object('id', v.id, 'name', v.name, 'num_upcoming_shows', coalesce(COUNT(s.id), 0)) FROM venue v LEFT JOIN shows s ON v.id = s.venue_id WHERE LOWER(v.name) LIKE LOWER(%s) GROUP by v.id, v.name"
-  cur.execute(sql_stmt, (search_str,))
-  
-  rv = cur.fetchall()
+  rv = Venue.query.filter(Venue.name.ilike(f'%{search_str}%')).all()
   json_data=[]
   search_cnt=0
   for result in rv:
-    json_data.append(result[0])
+    json_data.append(result)
     search_cnt += 1
-  
+
   response = {'count': search_cnt, 'data': json_data}
 
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
@@ -81,13 +104,8 @@ def search_venues():
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   ## TODO: replace with real venue data  from the venues table, using venue_id
-  
-  sql_stmt = "SELECT json_build_object('id', v2.id, 'name', v2.name, 'genres', v2.genres, 'address', v2.address, 'city', v2.city, 'state', v2.state, 'phone', v2.phone, 'website', v2.website, 'facebook_link', v2.facebook_link, 'seeking_talent', v2.seeking_talent, 'image_link', v2.image_link, 'seeking_description', v2.seeking_description) FROM venue v2 WHERE v2.id = %s"
 
-  cur.execute(sql_stmt, (venue_id,))
-  rv = cur.fetchall()
-
-  v_dict = rv[0][0]
+  v_dict = session.query(Venue).filter_by(id = venue_id).all()[0].__dict__
 
   a_list = []
   for v, s, a in session.query(Venue, Shows, Artist).filter(Venue.id == Shows.venue_id).filter(Shows.venue_id == venue_id).filter(Shows.artist_id == Artist.id).filter(Shows.start_time < datetime.datetime.now()).all():
@@ -197,12 +215,7 @@ def delete_venue(venue_id):
 def artists():
   ## TODO: replace with real data returned from querying the database
 
-  cur.execute("SELECT json_build_object('id', a.id, 'name', a.name) FROM artist a ORDER BY a.name;")
-
-  rv = cur.fetchall()
-  json_data=[]
-  for result in rv:
-    json_data.append(result[0])
+  json_data = Artist.query.order_by(Artist.name).all()
 
   return render_template('pages/artists.html', artists=json_data)
 
@@ -213,14 +226,12 @@ def search_artists():
   # search for "band" should return "The Wild Sax Band".
 
   search_str = "%" + request.form['search_term'] +"%"
-  sql_stmt = "SELECT json_build_object('id', a.id, 'name', a.name, 'num_upcoming_shows', coalesce(COUNT(s.id), 0)) FROM artist a LEFT JOIN shows s ON a.id = s.artist_id WHERE LOWER(a.name) LIKE LOWER(%s) GROUP by a.id, a.name"
-  cur.execute(sql_stmt, (search_str,))
-  
-  rv = cur.fetchall()
+  rv = Artist.query.filter(Artist.name.ilike(f'%{search_str}%')).all()
+
   json_data=[]
   search_cnt=0
   for result in rv:
-    json_data.append(result[0])
+    json_data.append(result)
     search_cnt += 1
   
   response = {'count': search_cnt, 'data': json_data}
@@ -233,12 +244,7 @@ def show_artist(artist_id):
   # shows the artist page with the given artist_id
   ## TODO: replace with real artist data from the artist table, using artist_id
   
-  sql_stmt = "SELECT json_build_object('id', a.id, 'name', a.name, 'genres', a.genres, 'city', a.city, 'state', a.state, 'phone', a.phone, 'website', a.website, 'facebook_link', a.facebook_link, 'seeking_venue', a.seeking_venue, 'image_link', a.image_link, 'seeking_description', a.seeking_description) FROM artist a WHERE a.id = %s"
-
-  cur.execute(sql_stmt, (artist_id,))
-  rv = cur.fetchall()
-
-  a_dict = rv[0][0]
+  a_dict = session.query(Artist).filter_by(id = artist_id).all()[0].__dict__
 
   v_list = []
   for v, s, a in session.query(Venue, Shows, Artist).filter(Artist.id == Shows.artist_id).filter(Shows.artist_id == artist_id).filter(Shows.venue_id == Venue.id).filter(Shows.start_time < datetime.datetime.now()).all():
@@ -461,13 +467,20 @@ def shows():
   ## TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
 
-  cur.execute("SELECT json_build_object('venue_id', sho_ven.id, 'venue_name', vname, 'artist_id', a.id, 'artist_name', a.name, 'artist_image_link', a.image_link, 'start_time', sho_ven.start_time) FROM (SELECT v.id, v.name vname, s.artist_id, s.start_time FROM shows s LEFT JOIN venue v ON v.id = s.venue_id ORDER BY vname) sho_ven LEFT JOIN artist a ON a.id = sho_ven.artist_id ORDER BY vname;")
+  results = (session.query(Shows, Venue, Artist).filter(Artist.id == Shows.artist_id).filter(Shows.venue_id == Venue.id)).all()
 
-  rv = cur.fetchall()
-  json_data=[]
-  for result in rv:
-    json_data.append(result[0])
-  return render_template('pages/shows.html', shows=json_data)
+  json_list = []
+  for s, v, a in results:
+    tmp_dict = {}
+    tmp_dict['venue_id'] = v.id
+    tmp_dict['venue_name'] = v.name
+    tmp_dict['artist_id'] = a.id
+    tmp_dict['artist_name'] = a.name
+    tmp_dict['artist_image_link'] = a.image_link
+    tmp_dict['start_time'] = str(s.start_time)
+    json_list.append(tmp_dict)
+
+  return render_template('pages/shows.html', shows=json_list)
 
 
 @app.route('/shows/create')
